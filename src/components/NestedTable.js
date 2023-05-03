@@ -1,8 +1,14 @@
+import { useEffect, useState } from 'react';
 import { properties } from '../shared/constants';
+import afterFrame from "afterframe";
+import { measureInteraction } from '../App';
 
-function NestedTable({ list, setList }) {
+function NestedTable({ list, setList, isActive }) {
+
+  if(!isActive) return null;
 
   const handleChange = (e) => {
+    const interaction = measureInteraction();
     const { title, value, name } = e.currentTarget
     setList(prev => prev.map(item => {
       if(item.name !== name) return item
@@ -11,10 +17,17 @@ function NestedTable({ list, setList }) {
         [title]: value
       }
     }))
+
+    afterFrame(() => {
+      interaction.end();
+    });
+    
   }
 
   return (
     <div className="nested-table">
+      {/* {isBlocked && <div className='blocked-layout'><h1>UI Blocked</h1></div>} */}
+      <p>NESTED</p>
       <table className='table'>
         <thead>
           <tr>
