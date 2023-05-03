@@ -5,23 +5,6 @@ import {ProfilerChart} from './components/ProfilerChart';
 import { NESTED_TABLE, NORMALIZED_STATE, TABS } from './shared/constants';
 import NormalizedTable from './components/NormalizedTable';
 
-export function measureInteraction(interactionName) {
-  // Don’t do this
-  performance.mark(interactionName + ' start');
-
-  return {
-    end() {
-      performance.mark(interactionName + ' end');
-      const measure = performance.measure(
-        interactionName + ' duration',
-        interactionName + ' start',
-        interactionName + ' end',
-      );
-      console.log('The interaction took', measure.duration, 'ms');
-    },
-  };
-}
-
 const colors = {
   long: 'red',
   normal: 'orange',
@@ -49,38 +32,28 @@ function App() {
     setActiveTab(e.currentTarget.name)
   }
 
-  const setChart = (value) => {
+
+  function onRender(id, phase, actualDuration, baseDuration, startTime, commitTime) {
+    console.log(1)
+    if(actualDuration === 0 || baseDuration === 0) return;
+    const diff = commitTime - startTime
+    console.log(2, diff)
+    // if(diff > 3) return;
+    if(phase === 'mount' || phase === 'nested-update') return;
+    if(Array.isArray(list) ? !list.length : !list.allIds) return;
+    console.log(3, diff)
     setChartData(prev => ([
           ...prev,
           [
               "",
-              value, 
-              detectColorByValue(value)
+              actualDuration, 
+              detectColorByValue(actualDuration)
           ]
-      ]))    
+      ]))
   }
 
-
-  // function onRender(id, phase, actualDuration, baseDuration, startTime, commitTime) {
-  //   console.log(1)
-  //   if(actualDuration === 0 || baseDuration === 0) return;
-  //   const diff = commitTime - startTime
-  //   console.log(2, diff)
-  //   // if(diff > 3) return;
-  //   if(phase === 'mount' || phase === 'nested-update') return;
-  //   if(Array.isArray(list) ? !list.length : !list.allIds) return;
-  //   console.log(3, diff)
-  //   setChartData(prev => ([
-  //         ...prev,
-  //         [
-  //             "",
-  //             actualDuration, 
-  //             detectColorByValue(actualDuration)
-  //         ]
-  //     ]))
-  // }
   return (
-    <>
+    <Profiler id="profiler-chart" onRender={onRender}>
       <header>
         <button 
           name={TABS.nested} 
@@ -99,12 +72,12 @@ function App() {
       </header>
       <div className='content p-3'>
         <div className="tables">
-          <NestedTable setChartData={setChart} list={list} setList={setList} isActive={activeTab === TABS.nested} />
-          <NormalizedTable setChartData={setChart} list={list} setList={setList} isActive={activeTab === TABS.normalized} />
+          <NestedTable list={list} setList={setList} isActive={activeTab === TABS.nested} />
+          <NormalizedTable list={list} setList={setList} isActive={activeTab === TABS.normalized} />
         </div>
         <ProfilerChart chartData={chartData} />
       </div>
-    </>
+    </Profiler>
   );
 }
 

@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react';
 import { properties } from '../shared/constants';
-import afterFrame from "afterframe";
-import { measureInteraction } from '../App';
 
 function NestedTable({ list, setList, isActive }) {
+
+  const [isBlocked, setIsBlocked] = useState(false)
+
+  useEffect(() => {
+    if(!isBlocked) return; 
+    setIsBlocked(false)
+  }, [isBlocked])
 
   if(!isActive) return null;
 
   const handleChange = (e) => {
-    const interaction = measureInteraction();
+    if(!isBlocked) setIsBlocked(true)
     const { title, value, name } = e.currentTarget
     setList(prev => prev.map(item => {
       if(item.name !== name) return item
@@ -17,17 +22,12 @@ function NestedTable({ list, setList, isActive }) {
         [title]: value
       }
     }))
-
-    afterFrame(() => {
-      interaction.end();
-    });
     
   }
 
   return (
     <div className="nested-table">
-      {/* {isBlocked && <div className='blocked-layout'><h1>UI Blocked</h1></div>} */}
-      <p>NESTED</p>
+      {isBlocked && <div className='blocked-layout'><h1>UI Blocked</h1></div>}
       <table className='table'>
         <thead>
           <tr>

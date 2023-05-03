@@ -1,24 +1,19 @@
 import { useEffect, useState } from 'react';
 import { properties } from '../shared/constants';
-import afterFrame from 'afterframe';
-import { measureInteraction } from '../App';
 
 function NormalizedTable({ list, setList, isActive }) {
 
+  const [isBlocked, setIsBlocked] = useState(false)
 
-//   useEffect(() => {
-//     // console.log('useEffect');
-//   }, [list])
-
-//   useEffect(() => {
-//     if(!isBlocked) return; 
-//     setIsBlocked(false)
-//   }, [isBlocked])
+  useEffect(() => {
+    if(!isBlocked) return; 
+    setIsBlocked(false)
+  }, [isBlocked])
 
   if(!isActive) return null;
 
   const handleChange = (e) => {
-    const interaction = measureInteraction();
+    if(!isBlocked) setIsBlocked(true)
     const { title, value, name } = e.currentTarget
     setList(prev => ({
         ...prev,
@@ -29,18 +24,14 @@ function NormalizedTable({ list, setList, isActive }) {
                 [title]: value
             }
         }
-    }))
-
-    afterFrame(() => {
-      interaction.end();
-    });
+    })) 
   }
 
   if(!list.allIds) return null;
 
   return (
     <div className="normalized-table">
-        <p>NORMALIZED</p>
+      {isBlocked && <div className='blocked-layout'><h1>UI Blocked</h1></div>}
       <table className='table'>
         <thead>
           <tr>
