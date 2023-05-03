@@ -50,19 +50,19 @@ header button:focus-visible {
   box-shadow: none;
 }
 
-.tables {
-  width: 50vw;
+.scenario {
+  width: 100%;
 }
 
-.normalized-table,
-.nested-table {
-  position: relative;
-}
-
-.chart-wrapper {
-  position: fixed;
-  left: 50%;
+.chart,
+.table {
   width: 50%;
+}
+
+.chart {
+  position: fixed;
+  left: 40%;
+  top: 120px;
 }
 
 table {

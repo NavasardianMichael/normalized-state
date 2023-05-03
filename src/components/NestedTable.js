@@ -1,19 +1,26 @@
-import { useEffect, useState } from 'react';
-import { properties } from '../shared/constants';
+import { Profiler, useState } from 'react';
+import Chart from 'react-google-charts';
 
-function NestedTable({ list, setList, isActive }) {
+import { NESTED_TABLE, properties } from '../shared/constants';
+import { detectColorByValue } from '../shared/functions';
 
-  const [isBlocked, setIsBlocked] = useState(false)
+function NestedTable({ isActive }) {
 
-  useEffect(() => {
-    if(!isBlocked) return; 
-    setIsBlocked(false)
-  }, [isBlocked])
+  const [list, setList] = useState(NESTED_TABLE)
+  // const [isBlocked, setIsBlocked] = useState(false)
+  const [chartData, setChartData] = useState([
+      ["Element", "", { role: "style" }],
+  ])
 
-  if(!isActive) return null;
+  // useEffect(() => {
+  //   if(!isBlocked) return; 
+  //   setIsBlocked(false)
+  // }, [isBlocked])
 
-  const handleChange = (e) => {
-    if(!isBlocked) setIsBlocked(true)
+  if(!isActive | !list.length) return null;
+
+  const handleBlur = (e) => {
+    // if(!isBlocked) setIsBlocked(true)
     const { title, value, name } = e.currentTarget
     setList(prev => prev.map(item => {
       if(item.name !== name) return item
@@ -25,45 +32,65 @@ function NestedTable({ list, setList, isActive }) {
     
   }
 
+  function onRender(id, phase, actualDuration, baseDuration, startTime, commitTime) {
+    if(actualDuration === 0 || baseDuration === 0) return;
+    if(phase === 'mount' || phase === 'nested-update') return;
+    setChartData(prev => ([
+      ...prev,
+      [
+          "",
+          actualDuration, 
+          detectColorByValue(actualDuration)
+      ]
+    ]))
+  }
+
   return (
-    <div className="nested-table">
-      {isBlocked && <div className='blocked-layout'><h1>UI Blocked</h1></div>}
-      <table className='table'>
-        <thead>
-          <tr>
-            {
-              properties.map(prop => {
-                return (
-                  <th scope="col" key={prop}>{prop.toUpperCase()}</th>
-                )
-              })
-            }
-          </tr>
-        </thead>
-        <tbody>
-          {
-            list.map(item => {
-              return (
-                <tr key={item.name}>
-                  {
-                    properties.map(prop => {
-                      return (
-                        <td key={prop}>
-                          {
-                            prop === 'flag' ?
-                            <img src={item[prop]} /> :
-                            <input title={prop} name={item.name} onChange={handleChange} value={item[prop]} />
-                          }
-                        </td>
-                      )
-                    })
-                  }
-                </tr>
-              )
-            })
-          }
-        </tbody>
-      </table>
+    <div className='nested scenario'>
+      <Profiler id="nested" onRender={onRender}>
+        <div className="nested-table table">
+          {/* {isBlocked && <div className='blocked-layout'><h1>UI Blocked</h1></div>} */}
+          <table className='table'>
+            <thead>
+              <tr>
+                {
+                  properties.map(prop => {
+                    return (
+                      <th scope="col" key={prop}>{prop.toUpperCase()}</th>
+                    )
+                  })
+                }
+              </tr>
+            </thead>
+            <tbody>
+              {
+                list.map(item => {
+                  return (
+                    <tr key={item.name}>
+                      {
+                        properties.map(prop => {
+                          return (
+                            <td key={prop}>
+                              {
+                                prop === 'flag' ?
+                                <img src={item[prop]} /> :
+                                <input title={prop} name={item.name} onChange={handleBlur} value={item[prop]} />
+                              }
+                            </td>
+                          )
+                        })
+                      }
+                    </tr>
+                  )
+                })
+              }
+            </tbody>
+          </table>
+        </div>
+      </Profiler>
+      <div className="chart">
+        <Chart chartType="ColumnChart" width="50%" height="80vh" data={chartData} />
+      </div>
     </div>
   );
 }
