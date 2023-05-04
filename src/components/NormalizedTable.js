@@ -1,18 +1,17 @@
 import { Profiler, useEffect, useMemo, useState } from 'react';
 import Chart from 'react-google-charts';
 
-import { properties } from '../shared/constants';
+import { TABS, properties } from '../shared/constants';
 import { detectColorByValue } from '../shared/functions';
 import { usePrevious } from '../shared/hooks';
 
-function NormalizedTable({ isActive }) {
+function NormalizedTable({ isActive, setRenderingAverageMs }) {
 
   const [list, setList] = useState({
     byId: {},
     allIds: []
   })
   const previousList = usePrevious(list)
-  // const [isBlocked, setIsBlocked] = useState(false)
   const [chartData, setChartData] = useState([
     ["Element", "", { role: "style" }],
   ])
@@ -20,14 +19,15 @@ function NormalizedTable({ isActive }) {
     const [_, ...data] = chartData
     console.log({chartData});
     if(!data?.length) return 0;
-    console.log({data});
     return data.reduce((acc, bar) => acc += +bar[1], 0)
   }, [chartData])
 
-  // useEffect(() => {
-  //   if(!isBlocked) return; 
-  //   setIsBlocked(false)
-  // }, [isBlocked])
+  useEffect(() => {
+    setRenderingAverageMs(prev => ({
+      ...prev,
+      [TABS.normalized]: renderingAverageMs
+    }))
+  }, [renderingAverageMs])
 
   useEffect(() => {
     const getData = async () => {
@@ -56,7 +56,6 @@ function NormalizedTable({ isActive }) {
   if(!list.allIds.length) return null;
 
   const handleChange = (e) => {
-    // if(!isBlocked) setIsBlocked(true)
     const { title, value, name } = e.currentTarget
     setList(prev => ({
         ...prev,
@@ -90,47 +89,45 @@ function NormalizedTable({ isActive }) {
       <Profiler id="normalized-chart" onRender={onRender}>
         {
             isActive && (
-                <div className="normalized-table my-table">
-                <p>NORMALIZED</p>
-                {/* {isBlocked && <div className='blocked-layout'><h1>UI Blocked</h1></div>} */}
-                <table className='table'>
-                    <thead>
-                    <tr>
-                        {
-                        properties.map(prop => {
-                            return (
-                            <th scope="col" key={prop}>{prop.toUpperCase()}</th>
-                            )
-                        })
-                        }
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {
-                        list.allIds.map(id => {
-                            const item = list.byId[id]
-                                return (
-                                    <tr key={id}>
-                                    {
-                                        properties.map(prop => {
-                                        return (
-                                            <td key={prop}>
-                                            {
-                                                prop === 'flag' ?
-                                                <img src={item[prop]} /> :
-                                                <input title={prop} name={item.name} onChange={handleChange} value={item[prop]} />
-                                            }
-                                            </td>
-                                        )
-                                        })
-                                    }
-                                    </tr>
-                                )
-                            })
-                    }
-                    </tbody>
-                </table>
-                </div>
+              <div className="normalized-table my-table">
+              <table className='table'>
+                  <thead>
+                  <tr>
+                      {
+                      properties.map(prop => {
+                          return (
+                          <th scope="col" key={prop}>{prop.toUpperCase()}</th>
+                          )
+                      })
+                      }
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {
+                      list.allIds.map(id => {
+                          const item = list.byId[id]
+                              return (
+                                  <tr key={id}>
+                                  {
+                                      properties.map(prop => {
+                                      return (
+                                          <td key={prop}>
+                                          {
+                                              prop === 'flag' ?
+                                              <img src={item[prop]} /> :
+                                              <input title={prop} name={item.name} onChange={handleChange} value={item[prop]} />
+                                          }
+                                          </td>
+                                      )
+                                      })
+                                  }
+                                  </tr>
+                              )
+                          })
+                  }
+                  </tbody>
+              </table>
+              </div>
             )
         }
       </Profiler>

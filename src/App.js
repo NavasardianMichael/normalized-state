@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import NestedTable from './components/NestedTable';
 import NormalizedTable from './components/NormalizedTable';
@@ -8,7 +8,16 @@ import './App.css';
 
 function App() {
   const [activeTab, setActiveTab] = useState(TABS.nested)
+  const [renderingAverageMs, setRenderingAverageMs] = useState({
+    [TABS.nested]: 0,
+    [TABS.normalized]: 0
+  })
 
+  const ratio = useMemo(() => {
+    const result = renderingAverageMs[TABS.nested] / renderingAverageMs[TABS.normalized] - 1
+    if(!result) return 'N/A'
+    return (result * 100).toFixed(2)
+  }, [renderingAverageMs])
 
   const handleClick = (e) => {
     setActiveTab(e.currentTarget.name)
@@ -31,11 +40,18 @@ function App() {
         >
           {TABS.normalized}
         </button>
+        <p>{ratio} % faster</p>
       </header>
       <div className='content p-3'>
         <div className="tables">
-          <NestedTable isActive={activeTab === TABS.nested} />
-          <NormalizedTable isActive={activeTab === TABS.normalized} />
+          <NestedTable 
+            isActive={activeTab === TABS.nested}
+            setRenderingAverageMs={setRenderingAverageMs}
+          />
+          <NormalizedTable 
+            isActive={activeTab === TABS.normalized}
+            setRenderingAverageMs={setRenderingAverageMs}
+          />
         </div>
       </div>
     </>

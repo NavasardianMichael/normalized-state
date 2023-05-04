@@ -1,11 +1,11 @@
 import { Profiler, useEffect, useMemo, useState } from 'react';
 import Chart from 'react-google-charts';
 
-import { properties } from '../shared/constants';
+import { TABS, properties } from '../shared/constants';
 import { detectColorByValue } from '../shared/functions';
 import { usePrevious } from '../shared/hooks';
 
-function NestedTable({ isActive }) {
+function NestedTable({ isActive, setRenderingAverageMs }) {
 
   const [list, setList] = useState([])
   const previousList = usePrevious(list)
@@ -18,6 +18,13 @@ function NestedTable({ isActive }) {
     if(!data?.length) return 0;
     return data.reduce((acc, bar) => acc += bar[1], 0)
   }, [chartData])
+
+  useEffect(() => {
+    setRenderingAverageMs(prev => ({
+      ...prev,
+      [TABS.nested]: renderingAverageMs
+    }))
+  }, [renderingAverageMs])
  
   useEffect(() => {
     const getData = async () => {
