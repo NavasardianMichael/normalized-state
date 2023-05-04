@@ -7,8 +7,8 @@ export const properties = [
 ]
 
 export const TABS = {
-    nested: 'nested',
-    normalized: 'normalized',
+    nested: 'Nested',
+    normalized: 'Normalized',
 }
 
 export const NORMALIZED_STATE = {
