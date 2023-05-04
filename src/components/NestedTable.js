@@ -1,7 +1,7 @@
 import { Profiler, useEffect, useMemo, useState } from 'react';
 import Chart from 'react-google-charts';
 
-import { NESTED_TABLE, properties } from '../shared/constants';
+import { properties } from '../shared/constants';
 import { detectColorByValue } from '../shared/functions';
 import { usePrevious } from '../shared/hooks';
 
@@ -18,13 +18,7 @@ function NestedTable({ isActive }) {
     if(!data?.length) return 0;
     return data.reduce((acc, bar) => acc += bar[1], 0)
   }, [chartData])
-
-  // useEffect(() => {
-  //   if(!isBlocked) return; 
-  //   setIsBlocked(false)
-  // }, [isBlocked])
-
-  
+ 
   useEffect(() => {
     const getData = async () => {
       const res = await fetch('https://restcountries.com/v3.1/all')

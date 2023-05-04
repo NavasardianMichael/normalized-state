@@ -1,7 +1,7 @@
 import { Profiler, useEffect, useMemo, useState } from 'react';
 import Chart from 'react-google-charts';
 
-import { NORMALIZED_STATE, properties } from '../shared/constants';
+import { properties } from '../shared/constants';
 import { detectColorByValue } from '../shared/functions';
 import { usePrevious } from '../shared/hooks';
 
