@@ -17,9 +17,8 @@ function NormalizedTable({ isActive, setRenderingAverageMs }) {
   ])
   const renderingAverageMs = useMemo(() => {
     const [_, ...data] = chartData
-    console.log({chartData});
     if(!data?.length) return 0;
-    return data.reduce((acc, bar) => acc += +bar[1], 0)
+    return data.reduce((acc, bar) => acc += +bar[1], 0) / data.length
   }, [chartData])
 
   useEffect(() => {
@@ -132,9 +131,11 @@ function NormalizedTable({ isActive, setRenderingAverageMs }) {
         }
       </Profiler>
       <div className="chart">
-        <h4>Normalized data chart</h4>
-        <p>{`Rendered ${chartData.length - 1} times, lasted`} <b>{renderingAverageMs.toFixed(2)} ms</b></p>
-        <Chart chartType="ColumnChart" width="100%" height="40vh" data={chartData} />
+        <h4>Normalized scenario rendering dynamics</h4>
+        <p>
+          {`Rendered ${chartData.length - 1} times, lasted`} <b>{renderingAverageMs.toFixed(2)} ms</b> on average
+        </p>
+        <Chart chartType="ColumnChart" width="100%" height="35vh" data={chartData} />
       </div>
     </div>
   );

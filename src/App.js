@@ -40,7 +40,10 @@ function App() {
         >
           {TABS.normalized}
         </button>
-        <p>{ratio} % faster</p>
+        <p className='summary'>
+          In the normalized state scenario the rendering "actualDuration" is <b>{(ratio && isFinite(ratio)) ? ratio : 'N/A'}%</b> faster,
+          than in the nested state scenario
+        </p>
       </header>
       <div className='content p-3'>
         <div className="tables">

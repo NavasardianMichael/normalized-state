@@ -9,14 +9,13 @@ function NestedTable({ isActive, setRenderingAverageMs }) {
 
   const [list, setList] = useState([])
   const previousList = usePrevious(list)
-  // const [isBlocked, setIsBlocked] = useState(false)
   const [chartData, setChartData] = useState([
       ["Element", "", { role: "style" }],
   ])
   const renderingAverageMs = useMemo(() => {
     const [_, ...data] = chartData
     if(!data?.length) return 0;
-    return data.reduce((acc, bar) => acc += bar[1], 0)
+    return data.reduce((acc, bar) => acc += bar[1], 0) / data.length
   }, [chartData])
 
   useEffect(() => {
@@ -70,14 +69,13 @@ function NestedTable({ isActive, setRenderingAverageMs }) {
       ]
     ]))
   }
-
+  
   return (
     <div className='nested scenario'>
       <Profiler id="nested" onRender={onRender}>
         {
           isActive && (
             <div className="nested-table my-table">
-              {/* {isBlocked && <div className='blocked-layout'><h1>UI Blocked</h1></div>} */}
               <table className='table'>
                 <thead>
                   <tr>
@@ -119,9 +117,11 @@ function NestedTable({ isActive, setRenderingAverageMs }) {
         }
       </Profiler>
       <div className="chart">
-        <h4>Nested data chart</h4>
-        <p>{`Rendered ${chartData.length - 1} times, lasted`} <b>{renderingAverageMs.toFixed(2)} ms</b></p>
-        <Chart chartType="ColumnChart" width="100%" height="40vh" data={chartData} />
+        <h4>Nested scenario rendering dynamics</h4>
+        <p>
+          {`Rendered ${chartData.length - 1} times, lasted`} <b>{renderingAverageMs.toFixed(2)} ms</b> on average
+        </p>
+        <Chart chartType="ColumnChart" width="100%" height="35vh" data={chartData} />
       </div>
     </div>
   );
